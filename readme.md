@@ -8,12 +8,14 @@ This module standardizes the creation of Google Pub/Sub topics using Terraform.
 | Module Version | Terraform Version | Google Provider Version |
 |----------------|------------------|------------------------|
 | v1.0.0         | v1.13.0          | 6.49.2                 |
+| v1.1.0         | v1.13.3          | 7.4.0                  |
 
 ## Release Notes
 
 | Module Version | Note           |
 |----------------|----------------|
 | v1.0.0         | Initial Version|
+| v1.1.0         | Support Publisher/Subscriber access to the topic |
 
 ## Specifying a Version
 
@@ -23,7 +25,7 @@ To avoid using the latest module version by default, specify the `?ref=***` in t
 
 ```hcl
 module "pbs-name" {
-  source = "git::https://github.com/danilomnds/terraform-gcp-pubsub-topic?ref=v1.0.0"
+  source = "git::https://github.com/danilomnds/terraform-gcp-pubsub-topic?ref=v1.1.0"
   project = "project_id"
   name = "pbs-name"
   message_retention_duration = "604800s"  # 7 days
@@ -52,11 +54,15 @@ output "id" {
 
 ```hcl
 module "pbs-name" {
-  source = "git::https://github.com/danilomnds/terraform-gcp-pubsub-topic?ref=v1.0.0"
+  source = "git::https://github.com/danilomnds/terraform-gcp-pubsub-topic?ref=v1.1.0"
   project = "project_id"
   name = "pbs-name"
-  message_retention_duration = "604800s"  # 7 days
-  members = ["group:GRP_GCP-SYSTEM-PRD@timbrasil.com.br"]
+  message_retention_duration = "604800s"  # 7 days  
+  members = ["group:GRP_GCP-SYSTEM-PRD@yourdomain.com.br"]
+  subscriber_role = true
+  subscriber_members = ["serviceAccount:GRP_GCP-SYSTEM-PRD@yourdomain.com.br"]
+  publisher_role = true
+  publisher_members = ["serviceAccount:GRP_GCP-SYSTEM-PRD@yourdomain.com.br"]
   message_storage_policy = {
     allowed_persistence_regions = [
       "us-east1", "us-east4", "us-east5"
@@ -91,8 +97,11 @@ output "id" {
 | ingestion_data_source_settings | Settings for ingestion from a data source into this topic. [Docs](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_topic) | `object({})`   | n/a     | No       |
 | message_transforms          | Transforms to be applied to messages published to the topic. [Docs](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_topic) | `object({})`   | n/a     | No       |
 | project                     | The ID of the project in which the resource belongs. If not provided, the provider project is used                                 | `string`       | n/a     | No       |
-| members                     | List of Azure AD groups that will use the resource                                                                                 | `list(string)` | n/a     | No       |
-| subscriber_role             | Should Pub/Sub Subscriber be granted?                                                                                              | `bool`         | false   | No       |
+| members                        | List of Azure AD groups that will have viewer access to the topic.                                                                                                     | `list(string)` | n/a     | No       |
+| subscriber_role                | Whether to grant the Pub/Sub Subscriber role to the provided `subscriber_members`.                                                                                    | `bool`         | false   | No       |
+| subscriber_members             | List of Azure AD groups that will have subscriber access to the topic.                                                                                                | `list(string)` | n/a     | No       |
+| publisher_role                 | Whether to grant the Pub/Sub Publisher role to the provided `publisher_members`.                                                                                      | `bool`         | false   | No       |
+| publisher_members              | List of Azure AD groups that will have publisher access to the topic.                                                                                                 | `list(string)` | n/a     | No       |
 
 # Object Variables for Blocks
 

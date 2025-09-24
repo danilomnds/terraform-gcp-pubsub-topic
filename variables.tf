@@ -105,3 +105,18 @@ variable "subscriber_role" {
   type    = bool
   default = false
 }
+
+variable "subscriber_members" {
+  type    = list(string)
+  default = []
+}
+
+variable "publisher_role" {
+  type    = bool
+  default = false
+}
+
+variable "publisher_members" {
+  type    = list(string)
+  default = []
+}
