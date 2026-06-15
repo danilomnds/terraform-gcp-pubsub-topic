@@ -51,6 +51,16 @@ resource "google_pubsub_topic" "topic" {
               delimiter = lookup(text_format.value, "delimiter", null)
             }
           }
+          # Optional Avro format marker block
+          dynamic "avro_format" {
+            for_each = lookup(cloud_storage.value, "avro_format", null) != null ? [cloud_storage.value.avro_format] : []
+            content {}
+          }
+          # Optional Pub/Sub Avro format marker block
+          dynamic "pubsub_avro_format" {
+            for_each = lookup(cloud_storage.value, "pubsub_avro_format", null) != null ? [cloud_storage.value.pubsub_avro_format] : []
+            content {}
+          }
           # Optional settings for object creation time and glob matching
           minimum_object_create_time = lookup(cloud_storage.value, "minimum_object_create_time", null)
           match_glob                 = lookup(cloud_storage.value, "match_glob", null)
@@ -108,6 +118,21 @@ resource "google_pubsub_topic" "topic" {
   dynamic "message_transforms" {
     for_each = var.message_transforms != null ? [var.message_transforms] : []
     content {
+      # Vertex AI inference transform settings
+      dynamic "ai_inference" {
+        for_each = lookup(message_transforms.value, "ai_inference", null) != null ? [message_transforms.value.ai_inference] : []
+        content {
+          endpoint              = ai_inference.value.endpoint
+          service_account_email = lookup(ai_inference.value, "service_account_email", null)
+
+          dynamic "unstructured_inference" {
+            for_each = lookup(ai_inference.value, "unstructured_inference", null) != null ? [ai_inference.value.unstructured_inference] : []
+            content {
+              parameters = lookup(unstructured_inference.value, "parameters", null)
+            }
+          }
+        }
+      }
       # JavaScript UDF transform settings
       dynamic "javascript_udf" {
         for_each = message_transforms.value.javascript_udf != null ? [message_transforms.value.javascript_udf] : []

@@ -46,8 +46,8 @@ variable "ingestion_data_source_settings" {
       text_format = optional(object({
         delimiter = optional(string)
       }))
-      avro_format                = optional(string)
-      pubsub_avro_format         = optional(string)
+      avro_format                = optional(object({}))
+      pubsub_avro_format         = optional(object({}))
       minimum_object_create_time = optional(string)
       match_glob                 = optional(string)
     }))
@@ -82,6 +82,13 @@ variable "ingestion_data_source_settings" {
 
 variable "message_transforms" {
   type = object({
+    ai_inference = optional(object({
+      endpoint              = string
+      service_account_email = optional(string)
+      unstructured_inference = optional(object({
+        parameters = optional(string)
+      }))
+    }))
     javascript_udf = optional(object({
       function_name = string
       code          = string
